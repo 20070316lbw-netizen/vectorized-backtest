@@ -1,0 +1,30 @@
+[project]
+name = "vectorized-backtest"
+version = "0.1.0"
+description = "向量化回测引擎: 目前还没有真正的回测逻辑, 先用来跑一次 sources -> load -> momfactor 的端到端真实数据验证"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "sources",
+    "load",
+    "momfactor",
+    "loguru>=0.7.3",
+]
+
+[project.scripts]
+vectorized-backtest = "vectorized_backtest:main"
+
+[tool.uv.sources]
+sources = { git = "https://github.com/20070316lbw-netizen/sources.git" }
+load = { git = "https://github.com/20070316lbw-netizen/load.git" }
+momfactor = { git = "https://github.com/20070316lbw-netizen/momfactor.git" }
+
+[build-system]
+requires = ["uv_build>=0.12.3,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.14.0",
+]

@@ -1,0 +1,22 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# macOS
+.DS_Store
+
+# ruff
+.ruff_cache/
+
+# 一次性跑出来的数据, 体积大也没必要进 git, 随时能重新跑
+data/
+
+# 开发用品
+src/vectorized_backtest/scratch.py
