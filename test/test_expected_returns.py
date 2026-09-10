@@ -5,7 +5,11 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from vectorized_backtest.signals.expected_returns import ic_scaled_alpha, rolling_ic, rolling_sigma
+from vectorized_backtest.signals.expected_returns import (
+    ic_scaled_alpha,
+    rolling_ic,
+    rolling_sigma,
+)
 
 
 @pytest.fixture

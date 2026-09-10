@@ -13,7 +13,6 @@ value] 堆叠格式(多个因子挤在一张表里, 见 load.about_factors), 回
 from __future__ import annotations
 
 import pandas as pd
-
 from load import read_parquet
 
 
