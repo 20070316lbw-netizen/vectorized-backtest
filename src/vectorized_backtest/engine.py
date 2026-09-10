@@ -1,8 +1,8 @@
 """组合净值与持仓的向量化演算
 
 只负责"给定调仓日的目标权重, 组合怎么按买入持有的方式逐日漂移", 不负责
-仓位怎么算出来(backtesttools.portfolio 的事)、也不负责算完之后怎么评估
-(backtesttools.metrics 的事)。非调仓日不交易、不重新计算目标权重, 组合就按调仓日那天的权重
+仓位怎么算出来(portfolio/ 的事)、也不负责算完之后怎么评估(evaluation/
+的事)。非调仓日不交易、不重新计算目标权重, 组合就按调仓日那天的权重
 换算出份额, 一直持有到下一个调仓日, 期间的市值随价格自然漂移。
 
 核心是一段"分段买入持有"的复利: 每个调仓区间内, 每只票相对区间起点的
@@ -27,7 +27,7 @@ import numpy as np
 import pandas as pd
 from loguru import logger
 
-from backtesttools.rebalance import rebalance_block
+from vectorized_backtest.rebalance import rebalance_block
 
 
 @dataclass

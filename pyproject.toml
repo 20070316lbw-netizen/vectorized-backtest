@@ -1,11 +1,13 @@
 [project]
 name = "vectorized-backtest"
 version = "0.1.0"
-description = "向量化回测引擎: 给定调仓日的目标权重, 按买入持有的方式算组合净值; 仓位怎么算是 backtesttools 的事, 这里只管净值模拟"
+description = "向量化多因子回测引擎: 因子面板 -> 信号 -> 仓位 -> 净值曲线, 全部收在一个包里, 用文件夹分工"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "backtesttools",
+    "sources",
+    "load",
+    "momfactor",
     "loguru>=0.7.3",
 ]
 
@@ -13,7 +15,9 @@ dependencies = [
 vectorized-backtest = "vectorized_backtest:main"
 
 [tool.uv.sources]
-backtesttools = { git = "https://github.com/20070316lbw-netizen/backtesttools.git" }
+sources = { git = "https://github.com/20070316lbw-netizen/sources.git" }
+load = { git = "https://github.com/20070316lbw-netizen/load.git" }
+momfactor = { git = "https://github.com/20070316lbw-netizen/momfactor.git" }
 
 [build-system]
 requires = ["uv_build>=0.12.3,<0.13.0"]
