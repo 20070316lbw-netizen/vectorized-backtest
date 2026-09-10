@@ -38,16 +38,30 @@ def rolling_ic(
             调仓周期数), 没有默认值, 需要显式传。
         date_level: 索引里日期所在的 level 名, 默认 "date"。
         method: 截面相关系数的算法, "spearman"(秩相关, 默认, 对分数的
-            具体数值分布不敏感)或 "pearson"。
+            具体数值分布不敏感)或 "pearson"。spearman 在这里是手动先
+            按截面 rank 再算 pearson 实现的(数学上等价于直接算秩相关),
+            不通过 pandas 内置的 method="spearman"——那条路径要装 scipy,
+            而这个项目目前不需要为了这一个相关系数多引入一个依赖。
 
     Returns:
         pd.Series, 索引是日期(daily_scores 里出现过的日期, 升序), 值是
         滚动 window 期的平均截面 IC; 前面窗口不够的日期为 NaN。
+
+    Raises:
+        ValueError: method 不是 "spearman" 或 "pearson"。
     """
+    if method not in ("spearman", "pearson"):
+        raise ValueError(f"method 必须是 'spearman' 或 'pearson', 收到 {method!r}")
+
     paired = pd.DataFrame({"score": daily_scores, "fwd_return": fwd_returns})
-    daily_ic = paired.groupby(level=date_level).apply(
-        lambda g: g["score"].corr(g["fwd_return"], method=method)
-    )
+
+    def _cross_sectional_corr(g: pd.DataFrame) -> float:
+        a, b = g["score"], g["fwd_return"]
+        if method == "spearman":
+            a, b = a.rank(), b.rank()
+        return a.corr(b)
+
+    daily_ic = paired.groupby(level=date_level).apply(_cross_sectional_corr)
     return daily_ic.sort_index().rolling(window).mean()
 
 

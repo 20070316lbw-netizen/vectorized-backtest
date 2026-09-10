@@ -94,7 +94,7 @@ def run(
 
     prices = prices.sort_index()
     dates = prices.index.get_level_values(date_level).unique().sort_values()
-    block = rebalance_block(dates, freq)
+    block = rebalance_block(dates, freq) # type: ignore
     rebal_dates = pd.DatetimeIndex(sorted(block.unique()))
 
     weight_dates = pd.DatetimeIndex(weights.index.get_level_values(date_level).unique())
