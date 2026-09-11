@@ -40,6 +40,13 @@ def factor_panel(
     Raises:
         ValueError: 同一个 (date, ticker, factor) 出现了不止一行(长表
             本身有重复, pivot 会歧义, 由 pandas 直接抛出)。
+
+    Example:
+        >>> factors = factor_panel("factors_long.parquet")  # doctest: +SKIP
+        >>> factors.columns.tolist()  # doctest: +SKIP
+        ['momentum', 'value']
+        >>> factors.index.names  # doctest: +SKIP
+        FrozenList(['date', 'ticker'])
     """
     long = read_parquet(path)
     wide = long.pivot(index=[date_col, ticker_col], columns=factor_col, values=value_col)
@@ -55,5 +62,10 @@ def price_panel(path: str) -> pd.DataFrame:
 
     Returns:
         [date, ticker] MultiIndex 价格表, 原样透传。
+
+    Example:
+        >>> prices = price_panel("prices.parquet")  # doctest: +SKIP
+        >>> prices.index.names  # doctest: +SKIP
+        FrozenList(['date', 'ticker'])
     """
     return read_parquet(path)

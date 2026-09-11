@@ -27,6 +27,17 @@ def zscore_by_date(
     Returns:
         与 factors 同形状的 DataFrame, 每列在每个日期截面内标准化;
         某天某因子只有一只股票有值(标准差为 0 或 NaN)时该处为 NaN。
+
+    Example:
+        >>> dates = pd.date_range("2024-01-01", periods=1, freq="D")
+        >>> idx = pd.MultiIndex.from_product([dates, ["A", "B", "C"]], names=["date", "ticker"])
+        >>> factors = pd.DataFrame({"f1": [1, 2, 3]}, index=idx)
+        >>> zscore_by_date(factors)  # doctest: +NORMALIZE_WHITESPACE
+                            f1
+        date       ticker
+        2024-01-01 A      -1.0
+                   B       0.0
+                   C       1.0
     """
     grouped = factors.groupby(level=date_level)
     return (factors - grouped.transform("mean")) / grouped.transform("std")
@@ -56,6 +67,17 @@ def combine_scores(
 
     Raises:
         KeyError: weights 里出现了 z 没有的因子名。
+
+    Example:
+        >>> dates = pd.date_range("2024-01-01", periods=1, freq="D")
+        >>> idx = pd.MultiIndex.from_product([dates, ["A", "B", "C"]], names=["date", "ticker"])
+        >>> z = pd.DataFrame({"f1": [-1.0, 0.0, 1.0], "f2": [-0.71, float("nan"), 0.71]}, index=idx)
+        >>> combine_scores(z)  # B 的 f2 缺失, 只用 f1
+        date        ticker
+        2024-01-01  A        -0.855
+                    B         0.000
+                    C         0.855
+        dtype: float64
     """
     if weights is None:
         w = pd.Series(1.0, index=z.columns)

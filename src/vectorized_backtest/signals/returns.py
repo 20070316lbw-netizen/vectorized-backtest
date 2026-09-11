@@ -38,6 +38,21 @@ def daily_returns(
     Returns:
         与 prices(排序后)同索引的 pd.Series, 每只 ticker 分组内的第一行
         是 NaN(没有前一天可比)。
+
+    Example:
+        >>> prices = pd.DataFrame(
+        ...     {"adj_close": [100, 110, 105]},
+        ...     index=pd.MultiIndex.from_tuples(
+        ...         [(d, "A") for d in pd.date_range("2024-01-01", periods=3)],
+        ...         names=["date", "ticker"],
+        ...     ),
+        ... )
+        >>> daily_returns(prices, log=False)
+        date        ticker
+        2024-01-01  A              NaN
+        2024-01-02  A         0.100000
+        2024-01-03  A        -0.045455
+        Name: adj_close, dtype: float64
     """
     prices = prices.sort_index()
     price = prices[price_col]
@@ -71,6 +86,22 @@ def forward_returns(
 
     Raises:
         ValueError: horizon 不是正整数。
+
+    Example:
+        >>> prices = pd.DataFrame(
+        ...     {"adj_close": [100, 110, 105, 100]},
+        ...     index=pd.MultiIndex.from_tuples(
+        ...         [(d, "A") for d in pd.date_range("2024-01-01", periods=4)],
+        ...         names=["date", "ticker"],
+        ...     ),
+        ... )
+        >>> forward_returns(prices, horizon=3)
+        date        ticker
+        2024-01-01  A         0.0
+        2024-01-02  A         NaN
+        2024-01-03  A         NaN
+        2024-01-04  A         NaN
+        Name: adj_close, dtype: float64
     """
     if horizon <= 0:
         raise ValueError("horizon 必须是正整数")

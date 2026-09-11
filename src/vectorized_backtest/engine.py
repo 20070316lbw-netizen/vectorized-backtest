@@ -87,6 +87,38 @@ def run(
     Raises:
         ValueError: weights 里的日期不是按 freq 从 prices 日历推出来的
             调仓日子集, 说明传入的 freq 跟算 weights 时不一致。
+
+    Example:
+        >>> import pandas as pd
+        >>> dates = pd.date_range("2024-01-01", periods=7, freq="D")
+        >>> price_a, price_b = [100, 110, 105, 100, 120, 90, 95], [50, 45, 55, 60, 63, 54, 66]
+        >>> rows = [(d, "A", price_a[i]) for i, d in enumerate(dates)]
+        >>> rows += [(d, "B", price_b[i]) for i, d in enumerate(dates)]
+        >>> prices = (
+        ...     pd.DataFrame(rows, columns=["date", "ticker", "adj_close"])
+        ...     .set_index(["date", "ticker"]).sort_index()
+        ... )
+        >>> weights = pd.Series(
+        ...     {(dates[0], "A"): 1.0, (dates[0], "B"): -1.0,
+        ...      (dates[3], "A"): -0.5, (dates[3], "B"): 0.5}
+        ... )
+        >>> weights.index = pd.MultiIndex.from_tuples(weights.index, names=["date", "ticker"])
+        >>> result = run(weights, prices, freq=3, log_rebalances=False)
+        >>> result.nav
+        date
+        2024-01-01    1.00000
+        2024-01-02    1.20000
+        2024-01-03    0.95000
+        2024-01-04    0.95000
+        2024-01-05    0.87875
+        2024-01-06    0.95000
+        2024-01-07    0.95000
+        Name: nav, dtype: float64
+        >>> result.shares.xs(dates[0], level="date")
+        ticker
+        A    0.01
+        B   -0.02
+        Name: shares, dtype: float64
     """
     weights = weights.dropna()
     weights = weights[weights != 0]

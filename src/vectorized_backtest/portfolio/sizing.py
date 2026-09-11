@@ -42,6 +42,20 @@ def quantile_long_short(
 
     Raises:
         ValueError: n_quantiles 小于 2(至少要有多空两组)。
+
+    Example:
+        >>> d = pd.Timestamp("2024-01-01")
+        >>> s = pd.Series({"A": 5.0, "B": 3.0, "C": 1.0, "D": -1.0, "E": -3.0, "F": -5.0})
+        >>> s.index = pd.MultiIndex.from_product([[d], s.index], names=["date", "ticker"])
+        >>> quantile_long_short(s, n_quantiles=3)
+        date        ticker
+        2024-01-01  A         0.5
+                    B         0.5
+                    C         0.0
+                    D         0.0
+                    E        -0.5
+                    F        -0.5
+        dtype: float64
     """
     if n_quantiles < 2:
         raise ValueError("n_quantiles 至少为 2, 才能分出多头组和空头组")
@@ -88,5 +102,11 @@ def mean_variance(
 
     Raises:
         NotImplementedError: 还没实现。
+
+    Example:
+        >>> mean_variance(mu, returns_panel)  # doctest: +SKIP
+        Traceback (most recent call last):
+            ...
+        NotImplementedError: MPT 优化器还没定(求解器/约束), 先占位
     """
     raise NotImplementedError("MPT 优化器还没定(求解器/约束), 先占位")
