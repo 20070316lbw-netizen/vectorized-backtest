@@ -24,6 +24,11 @@ def rebalance_dates(dates: pd.DatetimeIndex, freq: int) -> pd.DatetimeIndex:
 
     Raises:
         ValueError: freq 不是正整数。
+
+    Example:
+        >>> dates = pd.date_range("2024-01-01", periods=7, freq="D")
+        >>> list(rebalance_dates(dates, freq=3))
+        [Timestamp('2024-01-01 00:00:00'), Timestamp('2024-01-04 00:00:00'), Timestamp('2024-01-07 00:00:00')]
     """
     if freq <= 0:
         raise ValueError("freq 必须是正整数")
@@ -45,6 +50,18 @@ def rebalance_block(dates: pd.DatetimeIndex, freq: int) -> pd.Series:
         与去重排序后的 dates 等长的 pd.Series, 索引是日期, 值是该日所属
         调仓日(pd.Timestamp), 可以直接拿来 groupby 做区间内的向量化计算
         (比如 engine.py 里按区间算相对收益)。
+
+    Example:
+        >>> dates = pd.date_range("2024-01-01", periods=7, freq="D")
+        >>> rebalance_block(dates, freq=3)
+        2024-01-01   2024-01-01
+        2024-01-02   2024-01-01
+        2024-01-03   2024-01-01
+        2024-01-04   2024-01-04
+        2024-01-05   2024-01-04
+        2024-01-06   2024-01-04
+        2024-01-07   2024-01-07
+        Freq: D, Name: rebalance_date, dtype: datetime64[us]
     """
     d = pd.DatetimeIndex(dates).sort_values().unique()
     rb = rebalance_dates(d, freq)

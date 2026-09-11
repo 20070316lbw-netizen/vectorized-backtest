@@ -20,6 +20,12 @@ def sharpe_ratio(nav: pd.Series, periods_per_year: float) -> float:
 
     Returns:
         年化夏普比率; 有效收益率样本少于 2 个或标准差为 0 时返回 NaN。
+
+    Example:
+        >>> nav = pd.Series([1.0, 1.02, 1.01, 1.05, 1.03],
+        ...                 index=pd.date_range("2024-01-01", periods=5))
+        >>> round(sharpe_ratio(nav, periods_per_year=252), 4)
+        4.5161
     """
     ret = nav.pct_change().dropna()
     if len(ret) < 2 or ret.std() == 0:
@@ -35,6 +41,11 @@ def max_drawdown(nav: pd.Series) -> float:
 
     Returns:
         最大回撤, <= 0 的 float。
+
+    Example:
+        >>> nav = pd.Series([1.0, 1.2, 0.9, 1.1])
+        >>> max_drawdown(nav)
+        -0.25
     """
     running_max = nav.cummax()
     drawdown = nav / running_max - 1.0
@@ -60,6 +71,18 @@ def turnover(
 
     Returns:
         pd.Series, 索引是调仓日(升序), 值是当次相对上一次的单边换手率。
+
+    Example:
+        >>> d0, d1 = pd.Timestamp("2024-01-01"), pd.Timestamp("2024-01-22")
+        >>> w = pd.Series(
+        ...     {(d0, "A"): 0.5, (d0, "B"): -0.5, (d1, "A"): 0.5, (d1, "C"): -0.5}
+        ... )
+        >>> w.index = pd.MultiIndex.from_tuples(w.index, names=["date", "ticker"])
+        >>> turnover(w)
+        date
+        2024-01-01    0.5
+        2024-01-22    0.5
+        Name: turnover, dtype: float64
     """
     w = weights.unstack(ticker_level).fillna(0.0).sort_index()
     prev = w.shift(1).fillna(0.0)
@@ -74,6 +97,11 @@ def information_ratio(ic: pd.Series) -> float:
 
     Returns:
         信息比率; 有效样本少于 2 个或标准差为 0 时返回 NaN。
+
+    Example:
+        >>> ic = pd.Series([0.05, 0.03, 0.07, 0.02, 0.04])
+        >>> round(information_ratio(ic), 4)
+        2.1835
     """
     ic = ic.dropna()
     if len(ic) < 2 or ic.std() == 0:

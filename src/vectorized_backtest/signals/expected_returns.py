@@ -49,6 +49,21 @@ def rolling_ic(
 
     Raises:
         ValueError: method 不是 "spearman" 或 "pearson"。
+
+    Example:
+        >>> import numpy as np
+        >>> rng = np.random.default_rng(0)
+        >>> dates = pd.date_range("2024-01-01", periods=15, freq="D")
+        >>> tickers = [f"T{i}" for i in range(5)]
+        >>> idx = pd.MultiIndex.from_product([dates, tickers], names=["date", "ticker"])
+        >>> score = pd.Series(rng.normal(size=len(idx)), index=idx)
+        >>> fwd = 0.8 * score + pd.Series(rng.normal(size=len(idx)), index=idx)
+        >>> rolling_ic(score, fwd, window=5).tail(3)
+        date
+        2024-01-13    0.66
+        2024-01-14    0.66
+        2024-01-15    0.76
+        dtype: float64
     """
     if method not in ("spearman", "pearson"):
         raise ValueError(f"method 必须是 'spearman' 或 'pearson', 收到 {method!r}")
@@ -82,6 +97,20 @@ def rolling_sigma(
     Returns:
         与 returns 同索引的 pd.Series, 每只 ticker 分组内前 window-1 行
         是 NaN。
+
+    Example:
+        >>> idx = pd.MultiIndex.from_tuples(
+        ...     [(d, "A") for d in pd.date_range("2024-01-01", periods=4)],
+        ...     names=["date", "ticker"],
+        ... )
+        >>> daily_ret = pd.Series([float("nan"), 0.10, -0.05, 0.20], index=idx)
+        >>> rolling_sigma(daily_ret, window=3)
+        date        ticker
+        2024-01-01  A              NaN
+        2024-01-02  A              NaN
+        2024-01-03  A              NaN
+        2024-01-04  A         0.125831
+        dtype: float64
     """
     return returns.groupby(level=ticker_level).transform(lambda x: x.rolling(window).std())
 
@@ -109,6 +138,18 @@ def ic_scaled_alpha(
         期望收益 μ, 与 score 同索引的 pd.Series。score/sigma/ic 对不上
         的 (date, ticker) 结果为 NaN(不强行报错, 缺数据的票自然被排除
         在后续仓位构造之外)。
+
+    Example:
+        >>> date = pd.Timestamp("2024-01-01")
+        >>> idx = pd.MultiIndex.from_tuples([(date, "A"), (date, "B")], names=["date", "ticker"])
+        >>> score = pd.Series([2.0, -1.0], index=idx)
+        >>> sigma = pd.Series([0.1, 0.2], index=idx)
+        >>> ic = pd.Series([0.05], index=[date])
+        >>> ic_scaled_alpha(score, sigma, ic)
+        date        ticker
+        2024-01-01  A         0.01
+                    B        -0.01
+        dtype: float64
     """
     dates = score.index.get_level_values(date_level)
     ic_aligned = pd.Series(ic.reindex(dates).to_numpy(), index=score.index)
